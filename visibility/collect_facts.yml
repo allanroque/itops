@@ -2,6 +2,7 @@
 - name: Coleta de Propriedades do Sistema
   hosts: all
   gather_facts: yes
+  become: yes
   tasks:
     - name: Exibir Nome do Host
       ansible.builtin.debug:
