@@ -7,7 +7,22 @@
     - name: Coletar fatos do Ansible
       ansible.builtin.setup:
 
-    - name: Definir fatos personalizados
+    - name: Coletar informações sobre os serviços
+      ansible.builtin.service_facts:
+
+    - name: Coletar serviços habilitados e em execução
+      set_fact:
+        active_enabled_services: "{{ active_enabled_services | default([]) + [item.key] }}"
+      when: item.value.state == 'running' and item.value.status == 'enabled'
+      with_dict: "{{ ansible_facts.services }}"
+
+    - name: Coletar serviços em execução mas desabilitados
+      set_fact:
+        active_disabled_services: "{{ active_disabled_services | default([]) + [item.key] }}"
+      when: item.value.state == 'running' and item.value.status == 'disabled'
+      with_dict: "{{ ansible_facts.services }}"
+
+    - name: Definir fatos personalizados com informações do sistema
       set_fact:
         system_info: |
           Informações do Sistema:
@@ -24,10 +39,8 @@
           - Hora do Sistema: {{ ansible_facts.date_time.iso8601 }}
           - Fuso Horário: {{ ansible_facts.date_time.tz }}
           - Uptime: {{ (ansible_facts.uptime_seconds // 3600) | int }} horas, {{ ((ansible_facts.uptime_seconds % 3600) // 60) | int }} minutos, {{ (ansible_facts.uptime_seconds % 60) | int }} segundos
-          - Serviços Ativos:
-            {% for service in ansible_facts.ansible_local.services_status_check.localfacts.active_enabled_services %}
-            - {{ service }}
-            {% endfor %}
+          - Serviços Ativos e Habilitados: {{ active_enabled_services | join(', ') }}
+          - Serviços Ativos e Desabilitados: {{ active_disabled_services | join(', ') }}
           - Processos:
             {% for process in ansible_facts.ansible_local.proccess_status_check.localfacts.top_processes %}
             - {{ process }}
