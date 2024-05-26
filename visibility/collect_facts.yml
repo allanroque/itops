@@ -7,62 +7,22 @@
     - name: Coletar fatos do Ansible
       ansible.builtin.setup:
 
-    - name: Exibir Nome do Host
+    - name: Exibir Informações do Sistema
       ansible.builtin.debug:
-        msg: "Nome do Host: {{ ansible_facts['hostname'] }}"
-
-    - name: Exibir Sistema Operacional
-      ansible.builtin.debug:
-        msg: "Sistema Operacional: {{ ansible_facts['distribution'] }} {{ ansible_facts['distribution_version'] }}"
-
-    - name: Exibir Release do Sistema
-      ansible.builtin.debug:
-        msg: "Release do Sistema: {{ ansible_facts['distribution_release'] }}"
-
-    - name: Exibir Release do Kernel
-      ansible.builtin.debug:
-        msg: "Release do Kernel: {{ ansible_facts['kernel'] }}"
-
-    - name: Exibir CPUs
-      ansible.builtin.debug:
-        msg: "CPUs: {{ ansible_facts['processor_vcpus'] }}"
-
-    - name: Exibir RAM
-      ansible.builtin.debug:
-        msg: "RAM: {{ ansible_facts['memtotal_mb'] }} MB"
-
-    - name: Exibir Armazenamento
-      ansible.builtin.debug:
-        msg: "Armazenamento: {{ ansible_facts['mounts'][0]['size_total'] | human_readable }}"
-
-    - name: Exibir Arquitetura
-      ansible.builtin.debug:
-        msg: "Arquitetura: {{ ansible_facts['architecture'] }}"
-
-    - name: Exibir Endereços IPv4
-      ansible.builtin.debug:
-        msg: "Endereços IPv4: {{ ansible_facts['all_ipv4_addresses'] }}"
-
-    - name: Exibir DNS
-      ansible.builtin.debug:
-        msg: "DNS: {{ ansible_facts['dns']['nameservers'] }}"
-
-    - name: Exibir Hora do Sistema
-      ansible.builtin.debug:
-        msg: "Hora do Sistema: {{ ansible_facts['date_time']['iso8601'] }}"
-
-    - name: Exibir Fuso Horário
-      ansible.builtin.debug:
-        msg: "Fuso Horário: {{ ansible_facts['date_time']['tz'] }}"
-
-    - name: Exibir Uptime
-      ansible.builtin.debug:
-        msg: "Uptime: {{ (ansible_facts['uptime_seconds'] | int | float | round(0, 'floor') / 3600) | int }} horas, {{ ((ansible_facts['uptime_seconds'] | int | float | round(0, 'floor') % 3600) / 60) | int }} minutos, {{ (ansible_facts['uptime_seconds'] | int | float | round(0, 'floor') % 60) | int }} segundos"
-
-    - name: Exibir Serviços Ativos
-      ansible.builtin.debug:
-        msg: "Serviços Ativos: {{ ansible_facts['ansible_local']['services_status_check']['localfacts']['active_enabled_services'] }}"
-
-    - name: Exibir Processos
-      ansible.builtin.debug:
-        msg: "Processos: {{ ansible_facts['ansible_local']['proccess_status_check']['localfacts']['top_processes'] }}"
+        msg: |
+          Informações do Sistema:
+          - Nome do Host: {{ ansible_facts['hostname'] }}
+          - Sistema Operacional: {{ ansible_facts['distribution'] }} {{ ansible_facts['distribution_version'] }}
+          - Release do Sistema: {{ ansible_facts['distribution_release'] }}
+          - Release do Kernel: {{ ansible_facts['kernel'] }}
+          - CPUs: {{ ansible_facts['processor_vcpus'] }}
+          - RAM: {{ ansible_facts['memtotal_mb'] }} MB
+          - Armazenamento: {{ ansible_facts['mounts'][0]['size_total'] | human_readable }}
+          - Arquitetura: {{ ansible_facts['architecture'] }}
+          - Endereços IPv4: {{ ansible_facts['all_ipv4_addresses'] | join(', ') }}
+          - DNS: {{ ansible_facts['dns']['nameservers'] | join(', ') }}
+          - Hora do Sistema: {{ ansible_facts['date_time']['iso8601'] }}
+          - Fuso Horário: {{ ansible_facts['date_time']['tz'] }}
+          - Uptime: {{ (ansible_facts['uptime_seconds'] | int | float | round(0, 'floor') / 3600) | int }} horas, {{ ((ansible_facts['uptime_seconds'] | int | float | round(0, 'floor') % 3600) / 60) | int }} minutos, {{ (ansible_facts['uptime_seconds'] | int | float | round(0, 'floor') % 60) | int }} segundos
+          - Serviços Ativos: {{ ansible_facts['ansible_local']['services_status_check']['localfacts']['active_enabled_services'] | join(', ') }}
+          - Processos: {{ ansible_facts['ansible_local']['proccess_status_check']['localfacts']['top_processes'] | join(', ') }}
