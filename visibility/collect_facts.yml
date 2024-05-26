@@ -57,7 +57,7 @@
 
     - name: Exibir Uptime
       ansible.builtin.debug:
-        msg: "Uptime: {{ ansible_facts['uptime_seconds'] | int | to_datetime('%H:%M:%S', 'seconds') }}"
+        msg: "Uptime: {{ (ansible_facts['uptime_seconds'] | int | float | round(0, 'floor') / 3600) | int }} horas, {{ ((ansible_facts['uptime_seconds'] | int | float | round(0, 'floor') % 3600) / 60) | int }} minutos, {{ (ansible_facts['uptime_seconds'] | int | float | round(0, 'floor') % 60) | int }} segundos"
 
     - name: Exibir Serviços Ativos
       ansible.builtin.debug:
