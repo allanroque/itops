@@ -1,0 +1,26 @@
+---
+- name: Validate access to servers
+  hosts: all
+  gather_facts: false
+  ignore_unreachable: yes
+
+  tasks:
+    - name: Ping servers
+      ansible.builtin.ping:
+
+    - name: Execute whoami without become
+      ansible.builtin.command: whoami
+      register: whoami_result
+
+    - name: Show whoami result without become
+      ansible.builtin.debug:
+        msg: "User without become: {{ whoami_result.stdout }}"
+
+    - name: Execute whoami with become
+      ansible.builtin.command: whoami
+      become: yes
+      register: whoami_become_result
+
+    - name: Show whoami result with become
+      ansible.builtin.debug:
+        msg: "User with become: {{ whoami_become_result.stdout }}"
