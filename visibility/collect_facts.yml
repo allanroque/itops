@@ -7,9 +7,9 @@
     - name: Coletar fatos do Ansible
       ansible.builtin.setup:
 
-    - name: Exibir Informações do Sistema
-      ansible.builtin.debug:
-        msg: |
+    - name: Definir fatos personalizados
+      set_fact:
+        system_info: |
           Informações do Sistema:
           - Nome do Host: {{ ansible_facts.hostname }}
           - Sistema Operacional: {{ ansible_facts.distribution }} {{ ansible_facts.distribution_version }}
@@ -23,8 +23,8 @@
           - DNS: {{ ansible_facts.dns.nameservers | join(', ') }}
           - Hora do Sistema: {{ ansible_facts.date_time.iso8601 }}
           - Fuso Horário: {{ ansible_facts.date_time.tz }}
-          - Uptime: {{ (ansible_facts.uptime_seconds | int / 3600) | int }} horas, {{ ((ansible_facts.uptime_seconds | int % 3600) / 60) | int }} minutos, {{ (ansible_facts.uptime_seconds | int % 60) | int }} segundos
-          - Serviços Ativos: 
+          - Uptime: {{ (ansible_facts.uptime_seconds // 3600) | int }} horas, {{ ((ansible_facts.uptime_seconds % 3600) // 60) | int }} minutos, {{ (ansible_facts.uptime_seconds % 60) | int }} segundos
+          - Serviços Ativos:
             {% for service in ansible_facts.ansible_local.services_status_check.localfacts.active_enabled_services %}
             - {{ service }}
             {% endfor %}
@@ -32,3 +32,7 @@
             {% for process in ansible_facts.ansible_local.proccess_status_check.localfacts.top_processes %}
             - {{ process }}
             {% endfor %}
+
+    - name: Exibir Informações do Sistema
+      ansible.builtin.debug:
+        msg: "{{ system_info }}"
