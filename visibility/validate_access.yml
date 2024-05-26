@@ -2,7 +2,7 @@
 - name: Validate access to servers
   hosts: all
   gather_facts: false
-  ignore_unreachable: yes
+#  ignore_unreachable: yes
 
   tasks:
     - name: Ping servers
@@ -21,6 +21,6 @@
       become: yes
       register: whoami_become_result
 
-    - name: Show whoami result with become
+- name: Show whoami result with become
       ansible.builtin.debug:
         msg: "User with become: {{ whoami_become_result.stdout }}"

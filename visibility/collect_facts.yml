@@ -1,0 +1,64 @@
+---
+- name: Coleta de Propriedades do Sistema
+  hosts: all
+  gather_facts: yes
+  tasks:
+    - name: Exibir Nome do Host
+      ansible.builtin.debug:
+        msg: "Nome do Host: {{ ansible_hostname }}"
+
+    - name: Exibir Sistema Operacional
+      ansible.builtin.debug:
+        msg: "Sistema Operacional: {{ ansible_distribution }} {{ ansible_distribution_version }}"
+
+    - name: Exibir Release do Sistema
+      ansible.builtin.debug:
+        msg: "Release do Sistema: {{ ansible_distribution_release }}"
+
+    - name: Exibir Release do Kernel
+      ansible.builtin.debug:
+        msg: "Release do Kernel: {{ ansible_kernel }}"
+
+    - name: Exibir CPUs
+      ansible.builtin.debug:
+        msg: "CPUs: {{ ansible_processor_vcpus }}"
+
+    - name: Exibir RAM
+      ansible.builtin.debug:
+        msg: "RAM: {{ ansible_memtotal_mb }} MB"
+
+    - name: Exibir Armazenamento
+      ansible.builtin.debug:
+        msg: "Armazenamento: {{ ansible_mounts[0].size_total | human_readable }}"
+
+    - name: Exibir Arquitetura
+      ansible.builtin.debug:
+        msg: "Arquitetura: {{ ansible_architecture }}"
+
+    - name: Exibir Endereços IPv4
+      ansible.builtin.debug:
+        msg: "Endereços IPv4: {{ ansible_all_ipv4_addresses }}"
+
+    - name: Exibir DNS
+      ansible.builtin.debug:
+        msg: "DNS: {{ ansible_dns.nameservers }}"
+
+    - name: Exibir Hora do Sistema
+      ansible.builtin.debug:
+        msg: "Hora do Sistema: {{ ansible_date_time.iso8601 }}"
+
+    - name: Exibir Fuso Horário
+      ansible.builtin.debug:
+        msg: "Fuso Horário: {{ ansible_date_time.tz }}"
+
+    - name: Exibir Uptime
+      ansible.builtin.debug:
+        msg: "Uptime: {{ ansible_uptime_seconds | int | to_datetime('%H:%M:%S', 'seconds') }}"
+
+    - name: Exibir Serviços
+      ansible.builtin.debug:
+        msg: "Serviços: {{ ansible_facts.services }}"
+
+    - name: Exibir Processos
+      ansible.builtin.debug:
+        msg: "Processos: {{ ansible_facts.processes }}"
