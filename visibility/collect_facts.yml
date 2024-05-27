@@ -49,8 +49,8 @@
           - Uptime: {{ (ansible_facts.uptime_seconds // 3600) | int }} horas, {{ ((ansible_facts.uptime_seconds % 3600) // 60) | int }} minutos, {{ (ansible_facts.uptime_seconds % 60) | int }} segundos
           - Serviços Ativos e Habilitados: {{ active_enabled_services | join(', ') }}
           - Serviços Ativos e Desabilitados: {{ active_disabled_services | join(', ') }}
-          - Processos:
-            {% for process in ansible_facts.ansible_local.proccess_status_check.localfacts.top_processes %}
+          - Processos: 
+            {% for process in ansible_facts.ansible_local.proccess_status_check.localfacts.top_processes | from_json %}
             - {{ process }}
             {% endfor %}
 
