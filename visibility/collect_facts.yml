@@ -10,15 +10,23 @@
     - name: Coletar informações sobre os serviços
       ansible.builtin.service_facts:
 
+    - name: Inicializar lista de serviços habilitados e em execução
+      set_fact:
+        active_enabled_services: []
+
+    - name: Inicializar lista de serviços em execução mas desabilitados
+      set_fact:
+        active_disabled_services: []
+
     - name: Coletar serviços habilitados e em execução
       set_fact:
-        active_enabled_services: "{{ active_enabled_services | default([]) + [item.key] }}"
+        active_enabled_services: "{{ active_enabled_services + [item.key] }}"
       when: item.value.state == 'running' and item.value.status == 'enabled'
       with_dict: "{{ ansible_facts.services }}"
 
     - name: Coletar serviços em execução mas desabilitados
       set_fact:
-        active_disabled_services: "{{ active_disabled_services | default([]) + [item.key] }}"
+        active_disabled_services: "{{ active_disabled_services + [item.key] }}"
       when: item.value.state == 'running' and item.value.status == 'disabled'
       with_dict: "{{ ansible_facts.services }}"
 
