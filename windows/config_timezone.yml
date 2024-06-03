@@ -1,0 +1,20 @@
+---
+- name: Configure Win timezone
+  hosts: windows
+#  hosts: "{{ _hosts | default('os_windows') }}"
+  vars:
+    desired_timezone: 'GMT Standard Time'
+  
+  tasks:
+    - name: Configurar TimeZone para {{ desired_timezone }}
+      win_timezone:
+        timezone: "{{ desired_timezone }}"
+    
+    - name: Verificar TimeZone atual
+      win_shell: |
+        tzutil /g
+      register: timezone_output
+
+    - name: Exibir TimeZone atual
+      debug:
+        msg: "TimeZone atual no host {{ inventory_hostname }}: {{ timezone_output.stdout }}"

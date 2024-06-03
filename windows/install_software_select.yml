@@ -1,0 +1,11 @@
+---
+- name: Install System Software
+  hosts: windows
+  gather_facts: false
+  vars:
+    choco_packages:
+  tasks:
+    - name: Install required software
+      chocolatey.chocolatey.win_chocolatey:
+        name: "{{ choco_packages }}"
+        state: present
