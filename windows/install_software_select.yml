@@ -3,7 +3,7 @@
   hosts: windows
   gather_facts: false
   vars:
-    choco_packages:
+    choco_packages: []  # Lista de pacotes a serem instalados
   tasks:
     - name: Install required software
       chocolatey.chocolatey.win_chocolatey:
