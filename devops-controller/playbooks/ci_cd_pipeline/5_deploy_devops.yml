@@ -1,0 +1,27 @@
+---
+- name: Controller - DevOps
+  hosts: localhost
+  tasks:
+    - name: Triggering Ansible Tower job for deployment
+      debug:
+        msg: "Step 5 - Triggering Ansible Tower job for deployment"
+    - name: Trigger Ansible Tower job
+      ansible.builtin.uri:
+        url: https://controller.example.com/api/v2/job_templates/42/launch/
+        method: POST
+        user: myuser
+        password: mypassword
+        force_basic_auth: yes
+        body_format: json
+        body: |
+          {
+            "extra_vars": {
+              "pkg_version": "{{ pkgVersion }}",
+              "tag_name": "{{ newPkgVersion }}"
+            }
+          }
+      register: job_launch
+
+    - name: Print job launch result
+      debug:
+        var: job_launch

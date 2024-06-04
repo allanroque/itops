@@ -1,0 +1,43 @@
+---
+- name: Build and Tag
+  hosts: localhost
+  tasks:
+    - name: Building and tagging the application
+      debug:
+        msg: "Step 4 - Building and tagging the application"
+    - name: Reset and checkout main branch
+      shell: |
+        git reset --hard HEAD
+        git checkout main
+        git pull origin main --force --rebase
+        git fetch --tags --all --prune
+      args:
+        chdir: C:\Users\acme_user\repos\acme_corp
+
+    - name: Configure Git user
+      shell: |
+        git config --replace-all user.name {{ git_username }}
+        git config --replace-all user.email {{ git_email }}
+      args:
+        chdir: C:\Users\acme_user\repos\acme_corp
+
+    - name: Bump version
+      shell: |
+        /usr/bin/python3 -m bumpversion --config-file setup.cfg --allow-dirty --verbose minor --list > build_vars.env
+      args:
+        chdir: C:\Users\acme_user\repos\acme_corp\app
+      register: build_vars
+
+    - name: Read new package version
+      set_fact:
+        newPkgVersion: "{{ lookup('file', 'C:\\Users\\acme_user\\repos\\acme_corp\\app\\build_vars.env') | regex_search('^new_version=([0-9\\.]+)$', '\\1') }}"
+        pkgVersion: "{{ lookup('file', 'C:\\Users\\acme_user\\repos\\acme_corp\\app\\build_vars.env') | regex_search('^current_version=([0-9\\.]+)$', '\\1') }}"
+
+    - name: Tag and push new version
+      shell: |
+        git tag --force v{{ newPkgVersion }}
+        git add .
+        git commit -m"Bump version from v{{ pkgVersion }} to v{{ newPkgVersion }}"
+        git push --force origin main v{{ newPkgVersion }}
+      args:
+        chdir: C:\Users\acme_user\repos\acme_corp

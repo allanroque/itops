@@ -1,0 +1,91 @@
+---
+- name: CI/CD Pipeline
+  hosts: localhost
+  tasks:
+    - name: SCM Get Code
+      git:
+        repo: 'https://gitea:8443/student/acme_corp.git'
+        dest: /path/to/local/repo
+        version: main
+
+    - name: Installing packages
+      pip:
+        requirements: /path/to/local/repo/playbooks/files/requirements_test.txt
+        executable: /usr/bin/python3
+
+    - name: Static Code Checking
+      shell: |
+        find . -name "*.py" | xargs /usr/bin/python3 -m pylint --load-plugins=pylint_django -f parseable | tee pylint.log
+      args:
+        chdir: /path/to/local/repo
+      register: pylint_output
+
+    - name: Record Pylint Issues
+      copy:
+        content: "{{ pylint_output.stdout }}"
+        dest: /path/to/local/repo/pylint.log
+
+    - name: Fail if pylint issues are too high
+      fail:
+        msg: "Pylint found more than 10 high severity issues."
+      when: pylint_output.stdout | regex_findall('^E') | length > 10
+
+    - name: Build and Tag
+      block:
+        - name: Reset and checkout main branch
+          shell: |
+            git reset --hard HEAD
+            git checkout main
+            git pull origin main --force --rebase
+            git fetch --tags --all --prune
+          args:
+            chdir: /path/to/local/repo
+
+        - name: Configure Git user
+          shell: |
+            git config --replace-all user.name {{ git_username }}
+            git config --replace-all user.email {{ git_email }}
+          args:
+            chdir: /path/to/local/repo
+
+        - name: Bump version
+          shell: |
+            /usr/bin/python3 -m bumpversion --config-file setup.cfg --allow-dirty --verbose minor --list > build_vars.env
+          args:
+            chdir: /path/to/local/repo/app
+          register: build_vars
+
+        - name: Read new package version
+          set_fact:
+            newPkgVersion: "{{ lookup('file', '/path/to/local/repo/app/build_vars.env') | regex_search('^new_version=([0-9\\.]+)$', '\\1') }}"
+            pkgVersion: "{{ lookup('file', '/path/to/local/repo/app/build_vars.env') | regex_search('^current_version=([0-9\\.]+)$', '\\1') }}"
+
+        - name: Tag and push new version
+          shell: |
+            git tag --force v{{ newPkgVersion }}
+            git add .
+            git commit -m"Bump version from  v{{ pkgVersion }} to v{{ newPkgVersion }}"
+            git push --force origin main v{{ newPkgVersion }}
+          args:
+            chdir: /path/to/local/repo
+
+    - name: Controller - DevOps
+      ansible.builtin.uri:
+        url: https://controller.example.com/api/v2/job_templates/42/launch/
+        method: POST
+        user: myuser
+        password: mypassword
+        force_basic_auth: yes
+        body_format: json
+        body: |
+          {
+            "extra_vars": {
+              "pkg_version": "{{ pkgVersion }}",
+              "tag_name": "{{ newPkgVersion }}"
+            }
+          }
+      register: job_launch
+
+    - name: Print job launch result
+      debug:
+        var: job_launch

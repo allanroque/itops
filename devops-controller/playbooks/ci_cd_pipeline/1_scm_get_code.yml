@@ -1,0 +1,12 @@
+---
+- name: SCM Get Code
+  hosts: localhost
+  tasks:
+    - name: Cloning repository from SCM
+      debug:
+        msg: "Step 1 - Cloning repository from SCM"
+    - name: Clone repository from SCM
+      git:
+        repo: 'https://gitea:8443/student/acme_corp.git'
+        dest: C:\Users\acme_user\repos\acme_corp
+        version: main

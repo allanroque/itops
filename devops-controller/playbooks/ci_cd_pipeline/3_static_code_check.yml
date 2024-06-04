@@ -1,0 +1,23 @@
+---
+- name: Static Code Checking
+  hosts: localhost
+  tasks:
+    - name: Running static code analysis with pylint
+      debug:
+        msg: "Step 3 - Running static code analysis with pylint"
+    - name: Run static code analysis
+      shell: |
+        find . -name "*.py" | xargs /usr/bin/python3 -m pylint --load-plugins=pylint_django -f parseable | tee pylint.log
+      args:
+        chdir: C:\Users\acme_user\repos\acme_corp
+      register: pylint_output
+
+    - name: Save pylint output
+      copy:
+        content: "{{ pylint_output.stdout }}"
+        dest: C:\Users\acme_user\repos\acme_corp\pylint.log
+
+    - name: Fail if pylint issues are too high
+      fail:
+        msg: "Pylint found more than 10 high severity issues."
+      when: pylint_output.stdout | regex_findall('^E') | length > 10

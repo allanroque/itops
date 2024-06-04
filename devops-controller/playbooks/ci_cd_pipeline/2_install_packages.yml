@@ -1,0 +1,11 @@
+---
+- name: Installing Packages
+  hosts: localhost
+  tasks:
+    - name: Installing Python packages from requirements file
+      debug:
+        msg: "Step 2 - Installing Python packages from requirements file"
+    - name: Install Python packages
+      pip:
+        requirements: C:\Users\acme_user\repos\acme_corp\playbooks\files\requirements_test.txt
+        executable: /usr/bin/python3

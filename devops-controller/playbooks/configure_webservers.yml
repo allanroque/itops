@@ -1,0 +1,19 @@
+---
+- name: Install packages on webservers (Windows)
+  hosts: windows
+  gather_facts: false
+
+  tasks:
+    - name: Ensure Python is installed
+      chocolatey.chocolatey.win_chocolatey:
+        name: python
+        state: present
+
+    - name: Install setuptools and virtualenv using pip
+      ansible.windows.win_shell: |
+        pip install setuptools virtualenv
+
+    - name: Install Python packages from requirements file
+      ansible.windows.win_shell: |
+        virtualenv {{ acme_venv }}
+        {{ acme_venv }}\Scripts\pip install -r C:\Users\Public\Downloads\acme_corp\requirements_prod.txt

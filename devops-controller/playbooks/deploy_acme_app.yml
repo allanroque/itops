@@ -1,0 +1,28 @@
+---
+- name: Deploy ACME App (Windows)
+  hosts: windows
+  gather_facts: false
+
+  tasks:
+    - name: Download and extract application archive
+      win_get_url:
+        url: "http://gitea:3000/{{ student_user }}/acme_corp/archive/{{ tag_name }}.tar.gz"
+        dest: C:\Users\Public\Downloads\acme_corp\archive.tar.gz
+
+    - name: Extract archive
+      win_unzip:
+        src: C:\Users\Public\Downloads\acme_corp\archive.tar.gz
+        dest: C:\Program Files\acme_corp
+        creates: C:\Program Files\acme_corp\acme_corp
+
+    - name: Create database migrations
+      ansible.windows.win_shell: |
+        {{ acme_venv }}\Scripts\python C:\Program Files\acme_corp\acme_corp\app\lets_quiz\manage.py migrate
+      args:
+        chdir: C:\Program Files\acme_corp\acme_corp\app\lets_quiz
+
+    - name: Run the application
+      ansible.windows.win_shell: |
+        start /B {{ acme_venv }}\Scripts\python C:\Program Files\acme_corp\acme_corp\app\lets_quiz\manage.py runserver 0.0.0.0:8000
+      args:
+        chdir: C:\Program Files\acme_corp\acme_corp\app\lets_quiz

@@ -1,0 +1,38 @@
+---
+- name: Setup environment for ACME Corp application
+  hosts: localhost
+  tasks:
+    - name: Step 1 - Create a user
+      win_user:
+        name: acme_user
+        password: P@ssw0rd123!
+        groups:
+          - "Users"
+        state: present
+        password_never_expires: yes
+
+    - name: Step 2 - Ensure base directory exists
+      win_file:
+        path: 'C:\Users\acme_user\repos'
+        state: directory
+
+    - name: Step 3 - Ensure application directory exists
+      win_file:
+        path: 'C:\Users\acme_user\repos\acme_corp'
+        state: directory
+
+    - name: Step 4 - Set permissions on base directory
+      win_acl:
+        path: 'C:\Users\acme_user\repos'
+        user: acme_user
+        rights: FullControl
+        state: present
+        inheritance: true
+
+    - name: Step 5 - Set permissions on application directory
+      win_acl:
+        path: 'C:\Users\acme_user\repos\acme_corp'
+        user: acme_user
+        rights: FullControl
+        state: present
+        inheritance: true
